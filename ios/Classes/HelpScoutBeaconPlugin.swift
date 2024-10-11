@@ -2,7 +2,10 @@ import Flutter
 import UIKit
 import Beacon
 
-public class HelpScoutBeaconPlugin: NSObject, FlutterPlugin, HelpScoutBeaconApi {
+public class HelpScoutBeaconPlugin: NSObject, FlutterPlugin, HelpScoutBeaconApi, HSBeaconDelegate {
+  var prefill:HSBeaconForm?
+  var session:HSBeaconSession?
+
   public static func register(with registrar: FlutterPluginRegistrar) {
     let messenger : FlutterBinaryMessenger = registrar.messenger()
     let api : HelpScoutBeaconApi & NSObjectProtocol = HelpScoutBeaconPlugin.init()
@@ -23,6 +26,14 @@ public class HelpScoutBeaconPlugin: NSObject, FlutterPlugin, HelpScoutBeaconApi 
     user.avatar = beaconUser.avatar != nil ? URL(string: beaconUser.avatar!) : nil
     
     Beacon.HSBeacon.identify(user)
+  }
+
+  func addPreFilled(form: HSBeaconForm) throws {
+    self.prefill = form;
+  }
+  
+  func addSession(session: HSBeaconSession) throws {
+    self.session = session;
   }
 
   /// Opens the Beacon SDK from a specific view controller. The Beacon view controller will be presented as a modal.
@@ -47,6 +58,8 @@ public class HelpScoutBeaconPlugin: NSObject, FlutterPlugin, HelpScoutBeaconApi 
     if(fMode != nil) {
       settings.focusModeOverride = fMode!;
     }
+    settings.delegate = self;
+      
       
     switch route {
       case .ask:
@@ -73,5 +86,17 @@ public class HelpScoutBeaconPlugin: NSObject, FlutterPlugin, HelpScoutBeaconApi 
   /// Logs the current Beacon user out and clears out their information from local storage.
   func clear() -> Void {
     Beacon.HSBeacon.logout()
+  }
+
+
+  // Delegates
+  public func prefill(_ form: HSBeaconContactForm) {
+    form.name = prefill?.name
+    form.email = prefill?.email ?? ""
+    form.subject = prefill?.subject
+  }
+  
+  public func sessionAttributes() -> [String : String] {
+    return self.session?.attributes as? [String: String] ?? [:];
   }
 }
