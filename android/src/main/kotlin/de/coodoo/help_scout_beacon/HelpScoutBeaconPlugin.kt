@@ -4,6 +4,7 @@ import HSBeaconRoute
 import HSBeaconSettings
 import HSBeaconUser
 import HSBeaconSession
+import HSBeaconForm
 import HelpScoutBeaconApi
 import android.content.Context
 import com.helpscout.beacon.Beacon
@@ -12,6 +13,7 @@ import com.helpscout.beacon.model.BeaconScreens
 import com.helpscout.beacon.model.FocusMode
 import com.helpscout.beacon.ui.BeaconActivity
 import io.flutter.embedding.engine.plugins.FlutterPlugin
+import com.helpscout.beacon.model.PreFilledForm;
 
 /** HelpScoutBeaconPlugin */
 class HelpScoutBeaconPlugin : FlutterPlugin, HelpScoutBeaconApi {
@@ -57,6 +59,18 @@ class HelpScoutBeaconPlugin : FlutterPlugin, HelpScoutBeaconApi {
     }
   }
 
+  override fun addPreFilled(formData: HSBeaconForm) {
+    Beacon.addPreFilledForm(
+      PreFilledForm(
+        formData.name,
+        formData.subject,
+        formData.message,
+        emptyMap(),
+        emptyList(),
+        formData.email
+      )
+    )
+  }
 
   /**
    * Opens the Beacon SDK from a specific view controller. The Beacon view controller will be

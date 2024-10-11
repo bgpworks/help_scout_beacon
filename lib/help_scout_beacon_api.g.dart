@@ -201,18 +201,67 @@ class HSBeaconSession {
   }
 }
 
+class HSBeaconForm {
+  HSBeaconForm({
+    required this.name,
+    required this.subject,
+    required this.message,
+    this.customFieldValues,
+    this.attachments,
+    required this.email,
+  });
+
+  String name;
+
+  String subject;
+
+  String message;
+
+  Map<Object?, Object?>? customFieldValues;
+
+  List<Object?>? attachments;
+
+  String email;
+
+  Object encode() {
+    return <Object?>[
+      name,
+      subject,
+      message,
+      customFieldValues,
+      attachments,
+      email,
+    ];
+  }
+
+  static HSBeaconForm decode(Object result) {
+    result as List<Object?>;
+    return HSBeaconForm(
+      name: result[0]! as String,
+      subject: result[1]! as String,
+      message: result[2]! as String,
+      customFieldValues: result[3] as Map<Object?, Object?>?,
+      attachments: result[4] as List<Object?>?,
+      email: result[5]! as String,
+    );
+  }
+}
+
 class _HelpScoutBeaconApiCodec extends StandardMessageCodec {
   const _HelpScoutBeaconApiCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
-    if (value is HSBeaconSession) {
+    if (value is HSBeaconForm) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is HSBeaconSettings) {
+    } else if (value is HSBeaconSession) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is HSBeaconUser) {
+    } else if (value is HSBeaconSettings) {
       buffer.putUint8(130);
+      writeValue(buffer, value.encode());
+    } else if (value is HSBeaconUser) {
+      buffer.putUint8(131);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -223,10 +272,12 @@ class _HelpScoutBeaconApiCodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 128: 
-        return HSBeaconSession.decode(readValue(buffer)!);
+        return HSBeaconForm.decode(readValue(buffer)!);
       case 129: 
-        return HSBeaconSettings.decode(readValue(buffer)!);
+        return HSBeaconSession.decode(readValue(buffer)!);
       case 130: 
+        return HSBeaconSettings.decode(readValue(buffer)!);
+      case 131: 
         return HSBeaconUser.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -300,6 +351,28 @@ class HelpScoutBeaconApi {
     );
     final List<Object?>? __pigeon_replyList =
         await __pigeon_channel.send(<Object?>[session]) as List<Object?>?;
+    if (__pigeon_replyList == null) {
+      throw _createConnectionError(__pigeon_channelName);
+    } else if (__pigeon_replyList.length > 1) {
+      throw PlatformException(
+        code: __pigeon_replyList[0]! as String,
+        message: __pigeon_replyList[1] as String?,
+        details: __pigeon_replyList[2],
+      );
+    } else {
+      return;
+    }
+  }
+
+  Future<void> addPreFilled({required HSBeaconForm form}) async {
+    const String __pigeon_channelName = 'dev.flutter.pigeon.help_scout_beacon.HelpScoutBeaconApi.addPreFilled';
+    final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+      __pigeon_channelName,
+      pigeonChannelCodec,
+      binaryMessenger: __pigeon_binaryMessenger,
+    );
+    final List<Object?>? __pigeon_replyList =
+        await __pigeon_channel.send(<Object?>[form]) as List<Object?>?;
     if (__pigeon_replyList == null) {
       throw _createConnectionError(__pigeon_channelName);
     } else if (__pigeon_replyList.length > 1) {

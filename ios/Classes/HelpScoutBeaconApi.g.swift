@@ -197,14 +197,54 @@ struct HSBeaconSession {
     ]
   }
 }
+
+/// Generated class from Pigeon that represents data sent in messages.
+struct HSBeaconForm {
+  var name: String
+  var subject: String
+  var message: String
+  var customFieldValues: [AnyHashable: Any?]? = nil
+  var attachments: [Any?]? = nil
+  var email: String
+
+  static func fromList(_ list: [Any?]) -> HSBeaconForm? {
+    let name = list[0] as! String
+    let subject = list[1] as! String
+    let message = list[2] as! String
+    let customFieldValues: [AnyHashable: Any?]? = nilOrValue(list[3])
+    let attachments: [Any?]? = nilOrValue(list[4])
+    let email = list[5] as! String
+
+    return HSBeaconForm(
+      name: name,
+      subject: subject,
+      message: message,
+      customFieldValues: customFieldValues,
+      attachments: attachments,
+      email: email
+    )
+  }
+  func toList() -> [Any?] {
+    return [
+      name,
+      subject,
+      message,
+      customFieldValues,
+      attachments,
+      email,
+    ]
+  }
+}
 private class HelpScoutBeaconApiCodecReader: FlutterStandardReader {
   override func readValue(ofType type: UInt8) -> Any? {
     switch type {
     case 128:
-      return HSBeaconSession.fromList(self.readValue() as! [Any?])
+      return HSBeaconForm.fromList(self.readValue() as! [Any?])
     case 129:
-      return HSBeaconSettings.fromList(self.readValue() as! [Any?])
+      return HSBeaconSession.fromList(self.readValue() as! [Any?])
     case 130:
+      return HSBeaconSettings.fromList(self.readValue() as! [Any?])
+    case 131:
       return HSBeaconUser.fromList(self.readValue() as! [Any?])
     default:
       return super.readValue(ofType: type)
@@ -214,14 +254,17 @@ private class HelpScoutBeaconApiCodecReader: FlutterStandardReader {
 
 private class HelpScoutBeaconApiCodecWriter: FlutterStandardWriter {
   override func writeValue(_ value: Any) {
-    if let value = value as? HSBeaconSession {
+    if let value = value as? HSBeaconForm {
       super.writeByte(128)
       super.writeValue(value.toList())
-    } else if let value = value as? HSBeaconSettings {
+    } else if let value = value as? HSBeaconSession {
       super.writeByte(129)
       super.writeValue(value.toList())
-    } else if let value = value as? HSBeaconUser {
+    } else if let value = value as? HSBeaconSettings {
       super.writeByte(130)
+      super.writeValue(value.toList())
+    } else if let value = value as? HSBeaconUser {
+      super.writeByte(131)
       super.writeValue(value.toList())
     } else {
       super.writeValue(value)
@@ -252,6 +295,7 @@ protocol HelpScoutBeaconApi {
   /// Signs in with a Beacon user. This gives Beacon access to the user’s name, email address, and signature.
   func identify(beaconUser: HSBeaconUser) throws
   func addSession(session: HSBeaconSession) throws
+  func addPreFilled(form: HSBeaconForm) throws
   /// Opens the Beacon SDK from a specific view controller. The Beacon view controller will be presented as a modal.
   func open(settings: HSBeaconSettings, route: HSBeaconRoute, parameter: String?) throws
   /// Logs the current Beacon user out and clears out their information from local storage.
@@ -310,6 +354,21 @@ class HelpScoutBeaconApiSetup {
       }
     } else {
       addSessionChannel.setMessageHandler(nil)
+    }
+    let addPreFilledChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.help_scout_beacon.HelpScoutBeaconApi.addPreFilled", binaryMessenger: binaryMessenger, codec: codec)
+    if let api = api {
+      addPreFilledChannel.setMessageHandler { message, reply in
+        let args = message as! [Any?]
+        let formArg = args[0] as! HSBeaconForm
+        do {
+          try api.addPreFilled(form: formArg)
+          reply(wrapResult(nil))
+        } catch {
+          reply(wrapError(error))
+        }
+      }
+    } else {
+      addPreFilledChannel.setMessageHandler(nil)
     }
     /// Opens the Beacon SDK from a specific view controller. The Beacon view controller will be presented as a modal.
     let openChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.help_scout_beacon.HelpScoutBeaconApi.open", binaryMessenger: binaryMessenger, codec: codec)

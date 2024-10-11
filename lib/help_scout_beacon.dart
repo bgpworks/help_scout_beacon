@@ -23,6 +23,10 @@ class HelpScoutBeacon {
     await api.addSession(session: session);
   }
 
+  Future<void> addPreFilled({required HSBeaconForm form}) async {
+    await api.addPreFilled(form: form);
+  }
+
   /// Opens the Beacon SDK from a specific view controller. The Beacon view controller will be presented as a modal.
   Future<void> open({
     HSBeaconRoute route = HSBeaconRoute.ask,

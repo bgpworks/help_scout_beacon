@@ -128,6 +128,24 @@ class HSBeaconSession {
   final Map? attributes;
 }
 
+class HSBeaconForm {
+  const HSBeaconForm({
+    required this.name,
+    required this.subject,
+    required this.message,
+    this.customFieldValues,
+    this.attachments,
+    required this.email,
+  });
+
+  final String name;
+  final String subject;
+  final String message;
+  final Map? customFieldValues;
+  final List? attachments;
+  final String email;
+}
+
 /// Help Scout Beacon API
 @HostApi(dartHostTestHandler: 'TestHelpScoutBeaconApi')
 abstract class HelpScoutBeaconApi {
@@ -138,6 +156,8 @@ abstract class HelpScoutBeaconApi {
   void identify({required HSBeaconUser beaconUser});
 
   void addSession({required HSBeaconSession session});
+
+  void addPreFilled({required HSBeaconForm form});
 
   /// Opens the Beacon SDK from a specific view controller. The Beacon view controller will be presented as a modal.
   void open({

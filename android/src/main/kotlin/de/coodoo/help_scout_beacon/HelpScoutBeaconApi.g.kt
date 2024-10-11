@@ -215,21 +215,60 @@ data class HSBeaconSession (
     )
   }
 }
+
+/** Generated class from Pigeon that represents data sent in messages. */
+data class HSBeaconForm (
+  val name: String,
+  val subject: String,
+  val message: String,
+  val customFieldValues: Map<Any, Any?>? = null,
+  val attachments: List<Any?>? = null,
+  val email: String
+
+) {
+  companion object {
+    @Suppress("UNCHECKED_CAST")
+    fun fromList(list: List<Any?>): HSBeaconForm {
+      val name = list[0] as String
+      val subject = list[1] as String
+      val message = list[2] as String
+      val customFieldValues = list[3] as Map<Any, Any?>?
+      val attachments = list[4] as List<Any?>?
+      val email = list[5] as String
+      return HSBeaconForm(name, subject, message, customFieldValues, attachments, email)
+    }
+  }
+  fun toList(): List<Any?> {
+    return listOf<Any?>(
+      name,
+      subject,
+      message,
+      customFieldValues,
+      attachments,
+      email,
+    )
+  }
+}
 @Suppress("UNCHECKED_CAST")
 private object HelpScoutBeaconApiCodec : StandardMessageCodec() {
   override fun readValueOfType(type: Byte, buffer: ByteBuffer): Any? {
     return when (type) {
       128.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          HSBeaconSession.fromList(it)
+          HSBeaconForm.fromList(it)
         }
       }
       129.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
-          HSBeaconSettings.fromList(it)
+          HSBeaconSession.fromList(it)
         }
       }
       130.toByte() -> {
+        return (readValue(buffer) as? List<Any?>)?.let {
+          HSBeaconSettings.fromList(it)
+        }
+      }
+      131.toByte() -> {
         return (readValue(buffer) as? List<Any?>)?.let {
           HSBeaconUser.fromList(it)
         }
@@ -239,16 +278,20 @@ private object HelpScoutBeaconApiCodec : StandardMessageCodec() {
   }
   override fun writeValue(stream: ByteArrayOutputStream, value: Any?)   {
     when (value) {
-      is HSBeaconSession -> {
+      is HSBeaconForm -> {
         stream.write(128)
         writeValue(stream, value.toList())
       }
-      is HSBeaconSettings -> {
+      is HSBeaconSession -> {
         stream.write(129)
         writeValue(stream, value.toList())
       }
-      is HSBeaconUser -> {
+      is HSBeaconSettings -> {
         stream.write(130)
+        writeValue(stream, value.toList())
+      }
+      is HSBeaconUser -> {
+        stream.write(131)
         writeValue(stream, value.toList())
       }
       else -> super.writeValue(stream, value)
@@ -267,6 +310,7 @@ interface HelpScoutBeaconApi {
   /** Signs in with a Beacon user. This gives Beacon access to the user’s name, email address, and signature. */
   fun identify(beaconUser: HSBeaconUser)
   fun addSession(session: HSBeaconSession)
+  fun addPreFilled(form: HSBeaconForm)
   /** Opens the Beacon SDK from a specific view controller. The Beacon view controller will be presented as a modal. */
   fun open(settings: HSBeaconSettings, route: HSBeaconRoute, parameter: String?)
   /** Logs the current Beacon user out and clears out their information from local storage. */
@@ -327,6 +371,25 @@ interface HelpScoutBeaconApi {
             var wrapped: List<Any?>
             try {
               api.addSession(sessionArg)
+              wrapped = listOf<Any?>(null)
+            } catch (exception: Throwable) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.help_scout_beacon.HelpScoutBeaconApi.addPreFilled", codec)
+        if (api != null) {
+          channel.setMessageHandler { message, reply ->
+            val args = message as List<Any?>
+            val formArg = args[0] as HSBeaconForm
+            var wrapped: List<Any?>
+            try {
+              api.addPreFilled(formArg)
               wrapped = listOf<Any?>(null)
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)

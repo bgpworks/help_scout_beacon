@@ -14,14 +14,17 @@ class _TestHelpScoutBeaconApiCodec extends StandardMessageCodec {
   const _TestHelpScoutBeaconApiCodec();
   @override
   void writeValue(WriteBuffer buffer, Object? value) {
-    if (value is HSBeaconSession) {
+    if (value is HSBeaconForm) {
       buffer.putUint8(128);
       writeValue(buffer, value.encode());
-    } else if (value is HSBeaconSettings) {
+    } else if (value is HSBeaconSession) {
       buffer.putUint8(129);
       writeValue(buffer, value.encode());
-    } else if (value is HSBeaconUser) {
+    } else if (value is HSBeaconSettings) {
       buffer.putUint8(130);
+      writeValue(buffer, value.encode());
+    } else if (value is HSBeaconUser) {
+      buffer.putUint8(131);
       writeValue(buffer, value.encode());
     } else {
       super.writeValue(buffer, value);
@@ -32,10 +35,12 @@ class _TestHelpScoutBeaconApiCodec extends StandardMessageCodec {
   Object? readValueOfType(int type, ReadBuffer buffer) {
     switch (type) {
       case 128: 
-        return HSBeaconSession.decode(readValue(buffer)!);
+        return HSBeaconForm.decode(readValue(buffer)!);
       case 129: 
-        return HSBeaconSettings.decode(readValue(buffer)!);
+        return HSBeaconSession.decode(readValue(buffer)!);
       case 130: 
+        return HSBeaconSettings.decode(readValue(buffer)!);
+      case 131: 
         return HSBeaconUser.decode(readValue(buffer)!);
       default:
         return super.readValueOfType(type, buffer);
@@ -55,6 +60,8 @@ abstract class TestHelpScoutBeaconApi {
   void identify({required HSBeaconUser beaconUser});
 
   void addSession({required HSBeaconSession session});
+
+  void addPreFilled({required HSBeaconForm form});
 
   /// Opens the Beacon SDK from a specific view controller. The Beacon view controller will be presented as a modal.
   void open({required HSBeaconSettings settings, HSBeaconRoute route = HSBeaconRoute.ask, String? parameter,});
@@ -129,6 +136,31 @@ abstract class TestHelpScoutBeaconApi {
               'Argument for dev.flutter.pigeon.help_scout_beacon.HelpScoutBeaconApi.addSession was null, expected non-null HSBeaconSession.');
           try {
             api.addSession(session: arg_session!);
+            return wrapResponse(empty: true);
+          } on PlatformException catch (e) {
+            return wrapResponse(error: e);
+          }          catch (e) {
+            return wrapResponse(error: PlatformException(code: 'error', message: e.toString()));
+          }
+        });
+      }
+    }
+    {
+      final BasicMessageChannel<Object?> __pigeon_channel = BasicMessageChannel<Object?>(
+          'dev.flutter.pigeon.help_scout_beacon.HelpScoutBeaconApi.addPreFilled', pigeonChannelCodec,
+          binaryMessenger: binaryMessenger);
+      if (api == null) {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, null);
+      } else {
+        _testBinaryMessengerBinding!.defaultBinaryMessenger.setMockDecodedMessageHandler<Object?>(__pigeon_channel, (Object? message) async {
+          assert(message != null,
+          'Argument for dev.flutter.pigeon.help_scout_beacon.HelpScoutBeaconApi.addPreFilled was null.');
+          final List<Object?> args = (message as List<Object?>?)!;
+          final HSBeaconForm? arg_form = (args[0] as HSBeaconForm?);
+          assert(arg_form != null,
+              'Argument for dev.flutter.pigeon.help_scout_beacon.HelpScoutBeaconApi.addPreFilled was null, expected non-null HSBeaconForm.');
+          try {
+            api.addPreFilled(form: arg_form!);
             return wrapResponse(empty: true);
           } on PlatformException catch (e) {
             return wrapResponse(error: e);
