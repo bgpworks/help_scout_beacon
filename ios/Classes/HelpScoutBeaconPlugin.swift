@@ -95,8 +95,9 @@ public class HelpScoutBeaconPlugin: NSObject, FlutterPlugin, HelpScoutBeaconApi,
   // Delegates
   public func prefill(_ form: HSBeaconContactForm) {
     form.name = prefill?.name
-    form.email = prefill?.email ?? ""
     form.subject = prefill?.subject
+    form.text = prefill?.message
+    form.email = prefill?.email ?? ""
   }
   
   public func sessionAttributes() -> [String : String] {
