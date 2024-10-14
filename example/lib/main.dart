@@ -122,16 +122,25 @@ class _MyAppState extends State<MyApp> {
                       child: const Text('Set Session'),
                     ),
                     const SizedBox(width: 16),
-                    FilledButton(
-                      onPressed: () => beacon.addPreFilled(
-                        form: HSBeaconForm(
-                          name: 'User name',
-                          subject: 'Subject',
-                          message: 'Message',
-                          email: 'example@exam.com',
+                    Column(
+                      children: [
+                        FilledButton(
+                          onPressed: () => beacon.addPreFilled(
+                            form: HSBeaconForm(
+                              name: 'User name',
+                              subject: 'Subject',
+                              message: 'Message',
+                              email: 'example@exam.com',
+                            ),
+                          ),
+                          child: const Text('Set Form'),
                         ),
-                      ),
-                      child: const Text('Set Form'),
+                        // Reset
+                        FilledButton(
+                          onPressed: clearForm,
+                          child: const Text('Reset Form'),
+                        ),
+                      ],
                     ),
                     const SizedBox(width: 16),
                     FilledButton(
@@ -150,6 +159,10 @@ class _MyAppState extends State<MyApp> {
 
   Future<void>? clearBeacon() async {
     await beacon.clear();
+  }
+
+  Future<void>? clearForm() async {
+    await beacon.reset();
   }
 
   bool isFormValid() {

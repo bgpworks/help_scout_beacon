@@ -315,6 +315,7 @@ interface HelpScoutBeaconApi {
   fun open(settings: HSBeaconSettings, route: HSBeaconRoute, parameter: String?)
   /** Logs the current Beacon user out and clears out their information from local storage. */
   fun clear()
+  fun reset()
 
   companion object {
     /** The codec used by HelpScoutBeaconApi. */
@@ -428,6 +429,23 @@ interface HelpScoutBeaconApi {
             var wrapped: List<Any?>
             try {
               api.clear()
+              wrapped = listOf<Any?>(null)
+            } catch (exception: Throwable) {
+              wrapped = wrapError(exception)
+            }
+            reply.reply(wrapped)
+          }
+        } else {
+          channel.setMessageHandler(null)
+        }
+      }
+      run {
+        val channel = BasicMessageChannel<Any?>(binaryMessenger, "dev.flutter.pigeon.help_scout_beacon.HelpScoutBeaconApi.reset", codec)
+        if (api != null) {
+          channel.setMessageHandler { _, reply ->
+            var wrapped: List<Any?>
+            try {
+              api.reset()
               wrapped = listOf<Any?>(null)
             } catch (exception: Throwable) {
               wrapped = wrapError(exception)

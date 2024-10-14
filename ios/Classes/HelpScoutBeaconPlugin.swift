@@ -88,6 +88,9 @@ public class HelpScoutBeaconPlugin: NSObject, FlutterPlugin, HelpScoutBeaconApi,
     Beacon.HSBeacon.logout()
   }
 
+  func reset() -> Void {
+    Beacon.HSBeacon.reset()
+  }
 
   // Delegates
   public func prefill(_ form: HSBeaconContactForm) {

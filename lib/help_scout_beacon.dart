@@ -39,4 +39,9 @@ class HelpScoutBeacon {
   Future<void> clear() async {
     await api.clear();
   }
+
+  /// 연락처 양식을 초기화하고, 로그인 상태와 모드에 따라 이름과 이메일 주소 처리가 다름
+  Future<void> reset() async {
+    await api.reset();
+  }
 }

@@ -119,6 +119,10 @@ class HelpScoutBeaconPlugin : FlutterPlugin, HelpScoutBeaconApi {
     Beacon.logout()
   }
 
+  override fun reset() {
+    Beacon.contactFormReset()
+  }
+
 
   override fun onDetachedFromEngine(binding: FlutterPlugin.FlutterPluginBinding) {
     HelpScoutBeaconApi.setUp(binding.binaryMessenger, null)
