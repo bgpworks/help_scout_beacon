@@ -300,6 +300,7 @@ protocol HelpScoutBeaconApi {
   func open(settings: HSBeaconSettings, route: HSBeaconRoute, parameter: String?) throws
   /// Logs the current Beacon user out and clears out their information from local storage.
   func clear() throws
+  /// 연락처 양식을 초기화하고, 로그인 상태와 모드에 따라 이름과 이메일 주소 처리가 다름
   func reset() throws
 }
 
@@ -403,6 +404,7 @@ class HelpScoutBeaconApiSetup {
     } else {
       clearChannel.setMessageHandler(nil)
     }
+    /// 연락처 양식을 초기화하고, 로그인 상태와 모드에 따라 이름과 이메일 주소 처리가 다름
     let resetChannel = FlutterBasicMessageChannel(name: "dev.flutter.pigeon.help_scout_beacon.HelpScoutBeaconApi.reset", binaryMessenger: binaryMessenger, codec: codec)
     if let api = api {
       resetChannel.setMessageHandler { _, reply in

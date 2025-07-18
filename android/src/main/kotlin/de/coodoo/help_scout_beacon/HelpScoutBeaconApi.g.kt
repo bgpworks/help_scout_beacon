@@ -315,6 +315,7 @@ interface HelpScoutBeaconApi {
   fun open(settings: HSBeaconSettings, route: HSBeaconRoute, parameter: String?)
   /** Logs the current Beacon user out and clears out their information from local storage. */
   fun clear()
+  /** 연락처 양식을 초기화하고, 로그인 상태와 모드에 따라 이름과 이메일 주소 처리가 다름 */
   fun reset()
 
   companion object {
